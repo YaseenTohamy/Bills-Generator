@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      background-color: #f8f8f8;
+    }
+
+    #bill-container {
+      margin-top: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #007BFF;
+      color: #fff;
+    }
+
+    .delivery-section {
+      display: flex;
+      flex-direction: column; /* Change to column to stack items vertically */
+      align-items: flex-start; /* Align items to the start (left) */
+      margin-top: 10px; /* Adjust margin as needed */
+    }
+
+    .delivery-label,
+    .delivery-input {
+      margin-bottom: 5px; /* Add some space between label and input */
+    }
+
+    .delivery-input {
+      width: 50%;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    #total-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    @media print {
+      label,
+      #product,
+      #price,
+      button {
+        display: none;
+      }
+
+      body {
+        direction: rtl;
+        text-align: right;
+        background-color: #fff;
+      }
+
+      .container {
+        border: none;
+        box-shadow: none;
+        background-color: #fff;
+      }
+
+      table {
+        margin-top: 10px;
+      }
+
+      th, td {
+        font-size: 18px;
+      }
+
+      .delivery-section {
+        display: none;
+      }
+    }
+  </style>
+  <title>Bills</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Simple Bills Generator System</h1>
+    <div id="bill-container">
+      <label for="product">product:</label>
+      <input type="text" id="product" placeholder=" insert the product name ">
+
+      <label for="price">price:</label>
+      <input type="number" id="price" placeholder=" insert the price ">
+
+      <button onclick="addItem()"> add product</button>
+
+      <table id="item-table">
+        <thead>
+          <tr>
+            <th>the product</th>
+            <th>the price</th>
+          </tr>
+        </thead>
+        <tbody id="item-list"></tbody>
+      </table>
+
+      <div class="delivery-section">
+        <label class="delivery-label" for="delivery"> delivery cost:</label>
+        <input class="delivery-input" type="number" id="delivery" placeholder="inset the delivery price   ">
+      </div>
+
+      <div id="total-container">
+        <p> Total Products: <span id="total-products">0</span></p>
+        <p>Delivery: $ <span id="total-delivery">0.00</span></p>
+        <p>Total: $ <span id="total-amount">0.00</span></p>
+      </div>
+
+      <button onclick="printBill()">Print The Bill </button>
+    </div>
+  </div>
+  
+  <script>
+    let items = [];
+  
+    function addItem() {
+      const product = document.getElementById('product').value;
+      const price = parseFloat(document.getElementById('price').value);
+  
+      if (product && !isNaN(price) && price > 0) {
+        items.push({ product, price });
+        updateItemList();
+      } else {
+        alert('Please enter a valid product and price..');
+      }
+    }
+  
+    function updateItemList() {
+      const itemList = document.getElementById('item-list');
+      itemList.innerHTML = '';
+  
+      let totalProducts = 0;
+      let totalAmount = 0;
+  
+      items.forEach(item => {
+        const row = document.createElement('tr');
+        const cellProduct = document.createElement('td');
+        const cellPrice = document.createElement('td');
+  
+        cellProduct.textContent = item.product;
+        cellPrice.textContent = `$ ${item.price.toFixed(2)}`;
+  
+        row.appendChild(cellProduct);
+        row.appendChild(cellPrice);
+  
+        itemList.appendChild(row);
+  
+        totalProducts++;
+        totalAmount += item.price;
+      });
+  
+      document.getElementById('total-products').textContent = totalProducts;
+      updateTotalAmount();
+    }
+  
+    function updateTotalAmount() {
+      const deliveryCost = parseFloat(document.getElementById('delivery').value) || 0;
+      const totalAmount = items.reduce((sum, item) => sum + item.price, 0) + deliveryCost;
+  
+      document.getElementById('total-delivery').textContent
+  = deliveryCost.toFixed(2);
+  document.getElementById('total-amount').textContent = totalAmount.toFixed(2);
+  }
+  
+  // Add an event listener to the delivery input field
+  document.getElementById('delivery').addEventListener('input', updateTotalAmount);
+  
+  function printBill() {
+  const printContent = document.getElementById('bill-container').innerHTML;
+  const originalContent = document.body.innerHTML;
+  
+  document.body.innerHTML = printContent;
+  window.print();
+  
+  document.body.innerHTML = originalContent;
+  updateItemList(); // Restore the original content and update the item list
+  }
+  </script>
+</body>
+</html>
